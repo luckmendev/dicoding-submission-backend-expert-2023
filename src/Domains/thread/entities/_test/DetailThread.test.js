@@ -10,13 +10,18 @@ describe('DetailThread entity test', () => {
             title: 'title',
             body: 'body',
             date: 'date',
-            username: 'username'
+            username: 'username',
+            comments: []
         }
 
         const detailThread = new DetailThread(payload)
         expect(detailThread).toBeInstanceOf(DetailThread);
         expect(detailThread.body).toEqual(payload.body)
         expect(detailThread.id).toEqual(payload.id)
+        expect(detailThread.date).toEqual(payload.date)
+        expect(detailThread.title).toEqual(payload.title)
+        expect(detailThread.comments).toEqual(payload.comments)
+        expect(detailThread.username).toEqual(payload.username)
 
     })
 

@@ -181,6 +181,7 @@ describe('CommentRepositoryTest', () => {
             const getComment = await commentRepository.getCommentByThreadId(ThreadId)
            
             expect(getComment.length).toBeGreaterThan(0)
+            expect(getComment.length).toBe(1)
 
             expect(getComment[0].id).toBe(commentId)
             expect(getComment[0].is_delete).toBe(0)

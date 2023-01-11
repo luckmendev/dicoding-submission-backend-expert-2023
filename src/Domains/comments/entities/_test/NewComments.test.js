@@ -31,6 +31,8 @@ describe('NewComments entities', () => {
 
         const payload = {
             content: 'test',
+            owner: 'test-owner-id',
+            threadId: 'test-threadId'
 
         }
         const newComments = new NewComments(payload)
@@ -38,6 +40,8 @@ describe('NewComments entities', () => {
         expect(newComments).toBeInstanceOf(NewComments);
      
         expect(newComments.content).toEqual(payload.content)
+        expect(newComments.owner).toEqual(payload.owner)
+        expect(newComments.threadId).toEqual(payload.threadId)
 
     })
 

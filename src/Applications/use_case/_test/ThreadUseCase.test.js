@@ -30,7 +30,12 @@ describe('ThreadUseCaseTest',() => {
         const mockThreadRepository = new ThreadRepository()
 
        
-        mockThreadRepository.addThread = jest.fn(() => (useCasePayload))
+        mockThreadRepository.addThread = jest.fn().mockImplementation(() => Promise.resolve({
+            id: "test",
+            title: useCasePayload.title,
+            owner: useCasePayload.owner
+
+        }))
 
 
          /** creating use case instance */
@@ -43,7 +48,9 @@ describe('ThreadUseCaseTest',() => {
          // Action
         const addedThread = await threadUseCase.addThread(useCasePayload);
         
-        expect(addedThread).toStrictEqual(expectedAddedThread);
+        expect(addedThread).toStrictEqual({id: "test",
+        title: useCasePayload.title,
+        owner: useCasePayload.owner});
 
         expect(mockThreadRepository.addThread).toHaveBeenCalledWith(new NewThread({
             body: useCasePayload.body,
@@ -74,7 +81,7 @@ describe('GetThread', () => {
 
        
 
-        const expectedListcomment = 
+        const listComment = 
             [
                 {
                     "id": "comment-test-12345",
@@ -83,33 +90,44 @@ describe('GetThread', () => {
                     "is_delete": 0,
                     "content": "sebuah comment"
                 },
+                {
+                    "id": "comment-test-65432",
+                    "username": "dicoding",
+                    "date": "2023-01-01T03:47:24.576Z",
+                    "is_delete": 1,
+                    "content": "sebuah comment lama"
+                },
             ]
         
-        const expectedThread = {
+    
+        const mockThreadRepository = new ThreadRepository()
+        const mockCommentRepository = new CommentRepository()
+
+        mockCommentRepository.getCommentByThreadId = jest.fn()
+        .mockImplementation(() => Promise.resolve(listComment));
+
+
+        const listThread = {
             id: "test",
             title: "test title",
             body: "test body",
             date: "2022-11-06T13:04:54.960Z",
             username: "dicoding",
-            comments: expectedListcomment
+            comments: listComment
 
         }
-            
 
-        const mockThreadRepository = new ThreadRepository()
-        const mockCommentRepository = new CommentRepository()
-
-        mockCommentRepository.getCommentByThreadId = jest.fn()
-        .mockImplementation(() => Promise.resolve(expectedListcomment));
-
-         mockThreadRepository.getThread = jest.fn(() => ({
-            id: 'test',
-            title: "test title",
-            body: "test body",
-            date: "2022-11-06T13:04:54.960Z",
-            username: "dicoding"
+         mockThreadRepository.getThread = jest.fn().mockImplementation(() => Promise.resolve({
+            id: listThread.id,
+            title: listThread.title,
+            body: listThread.body,
+            date: listThread.date,
+            username: listThread.username,
+            comments:  listThread.comments
          }))
 
+        
+    
         
         /** creating use case instance */
         const threadUseCase = new ThreadUseCase({
@@ -119,9 +137,17 @@ describe('GetThread', () => {
         });
 
         const getThread = await threadUseCase.getThread('test')
-
     
-        expect(getThread).toStrictEqual(expectedThread)
+        listComment.map((v, index) => {
+
+            if(v.is_delete == 1){
+                expect(getThread.comments[index].content).toStrictEqual("**komentar telah dihapus**")
+            }
+
+        })
+    
+        expect(getThread.comments.length).toBe(listComment.length)
+        expect(getThread).toStrictEqual(listThread)
         expect(mockCommentRepository.getCommentByThreadId).toBeCalledWith('test')
         expect(mockThreadRepository.getThread).toBeCalledWith('test')
 
